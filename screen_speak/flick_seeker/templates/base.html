@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Site{% endblock %}</title>
+    <!-- ここに共通のCSSやJavaScriptのリンクを追加 -->
+</head>
+<body>
+    <!-- ナビゲーションバーなど共通のヘッダー要素 -->
+
+    {% block content %}
+    <!-- この部分は子テンプレートによって上書きされます -->
+    {% endblock %}
+
+    <!-- 共通のフッター要素 -->
+</body>
+</html>

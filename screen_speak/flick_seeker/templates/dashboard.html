@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>ダッシュボード</h1>
+
+  <!-- 映画一覧 -->
+  <h2>映画一覧</h2>
+  <div class="movie-list">
+    <!-- サムネイルとタイトルを表示 -->
+    {% for movie in movies %}
+      <div class="movie-thumbnail">
+        <a href="{% url 'screen_speak:movie_detail' movie.id %}">
+          <img src="{{ movie.thumbnail.url }}" alt="{{ movie.title }} Thumbnail">
+          <h3>{{ movie.title }}</h3>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- 「続きはこちら」へのリンク -->
+  <a href="{% url 'flick_seeker:movie_list' %}" class="button">続きはこちら</a>
+
+  <!-- 検索バーと検索機能 -->
+  <h2>検索</h2>
+  <form method="GET" action="">
+    <input type="text" name="query" placeholder="キーワードを入力">
+    <button type="submit">検索</button>
+  </form>
+
+  <!-- マイページボタン -->
+  <a href="{% url 'flick_seeker:mypage' %}" class="button">マイページへ</a>
+
+  <!-- ログアウトボタン -->
+  <a href="{% url 'flick_seeker:logout' %}" class="button">ログアウト</a>
+{% endblock %}

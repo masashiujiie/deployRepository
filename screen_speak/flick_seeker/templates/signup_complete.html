@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Complete</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>登録が完了しました</h1>
+
+    <!-- ログイン画面への遷移ボタン -->
+    <a href="{% url 'flick_seeker:login' %}" class="button">ログイン画面へ</a>
+</body>
+</html>

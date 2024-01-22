@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <style>
+        /* スタイルの定義 */
+        form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        p {
+            margin-bottom: 5px;
+        }
+
+        input, button {
+            margin-top: 5px;
+        }
+
+        button {
+            width: auto;
+            margin-left: 5px; /* Show Password ボタンの右側に隙間を作る */
+        }
+    </style>
+    <script>
+        // パスワード表示切り替えのJavaScript関数
+        function togglePassword(inputId, buttonId) {
+            var passwordInput = document.getElementById(inputId);
+            var toggleBtn = document.getElementById(buttonId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = 'Hide Password';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = 'Show Password';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Signup Page</h1>
+    
+    <!-- フォームの定義 -->
+    <form method="post" action="{% url 'flick_seeker:signup'  %}">
+        {% csrf_token %}
+
+        <!-- フォーム全体のエラーメッセージ -->
+        {{ form.non_field_errors }}
+
+        <!-- ユーザー名入力 -->
+        <p>ユーザー名: この項目は必須です。</p>
+        {{ form.username }}
+        {{ form.username.errors }}
+
+        <!-- メールアドレス入力 -->
+        <p>Email: この項目は必須です。有効なメールアドレスを入力してください。</p>
+        {{ form.email }}
+        {{ form.email.errors }}
+
+        <!-- パスワード入力 -->
+        <p>パスワード: パスワードは少なくとも8文字以上で、大文字、小文字、数字、記号をそれぞれ1つ以上含むようにしてください。</p>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+        <button type="button" onclick="togglePassword('id_password1', 'togglePassword1')">Show Password</button>
+
+        <!-- パスワード再入力 -->
+        <p>パスワード（確認用）: パスワードを再入力してください。</p>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+        <button type="button" onclick="togglePassword('id_password2', 'togglePassword2')">Show Password</button>
+
+        <!-- 送信ボタン -->
+        <button type="submit" class="button signup-button">Signup</button>
+    </form>
+
+    <!-- 戻るボタン -->
+    <a href="{% url 'flick_seeker:top' %}" class="button back-button">戻る</a>
+</body>
+</html>

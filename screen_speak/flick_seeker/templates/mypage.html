@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>マイページ</h1>
+
+<p>ユーザー名: {{ user.username }}</p>
+<!-- アイコンの表示（モデルによって異なる） -->
+{% if user.profile.icon %}
+    <img src="{{ user.profile.icon.url }}" alt="アイコン">
+{% endif %}
+
+<!-- マイレビュー一覧へのリンク -->
+<a href="{% url 'flick_seeker:my_reviews' %}">マイレビュー一覧</a>
+
+<!-- お気に入り一覧へのリンク -->
+<a href="{% url 'flick_seeker:my_favorites' %}">お気に入り一覧</a>
+
+<!-- ログアウトリンク -->
+<a href="{% url 'flick_seeker:logout' %}">ログアウト</a>
+
+{% endblock %}

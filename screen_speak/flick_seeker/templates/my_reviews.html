@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>マイレビュー一覧</h2>
+
+<!-- レビューの一覧を表示 -->
+{% for review in reviews %}
+    <div class="review">
+        <h3>{{ review.movie.title }}</h3> <!-- 映画のタイトル -->
+        <p>評価: {{ review.rating }}</p> <!-- 評価スコア -->
+        <p>{{ review.comment }}</p> <!-- レビューコメント -->
+        <p>投稿日: {{ review.created_at }}</p> <!-- 投稿日時 -->
+        <!-- 編集や削除のリンク（必要に応じて） -->
+    </div>
+{% empty %}
+    <p>レビューはありません。</p>
+{% endfor %}
+{% endblock %}

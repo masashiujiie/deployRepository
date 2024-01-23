@@ -47,9 +47,9 @@ class CustomLoginView(LoginView):
 login_view = CustomLoginView.as_view()
 
 def signup_confirm(request, token):
-        # セッションからサインアップデータを取得
+    # セッションからサインアップデータを取得
     signup_data = request.session.get('signup_data')
-        # セッション内のトークンとURLのトークンが一致するか検証
+    # セッション内のトークンとURLのトークンが一致するか検証
     if signup_data and signup_data.get('token') == token:
         # 確認ページにユーザー情報を表示
         context = {
@@ -64,33 +64,32 @@ def signup_confirm(request, token):
     
 def signup_complete(request, token):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            # POSTリクエストからtokenを取得
-            post_token = request.POST.get('token')
-            signup_data = request.session.pop('signup_data', None)
-            if signup_data and signup_data.get('token') == post_token: 
-                 # ここでユーザーを作成しています
-                try:
-                    user = User.objects.create_user(
-                        username=signup_data.get('username'),
-                        email=signup_data.get('email'),
-                        password=form.cleaned_data.get('password1')
-                    )
-                    user.save()
-                    # 保存後のログを出力します（デバッグ用）
-                    print(f"User {user.username} saved successfully")
-                    # サインアップ完了後の処理
-                    return redirect('flick_seeker:signup_complete')  
-                except Exception as e:
-                    # エラーハンドリングを追加
-                    print(f"Error saving user: {e}")
-                    return HttpResponse("ユーザーの保存中にエラーが発生しました。", status=500)
-            else:
-                return HttpResponse("無効なアクセスです。", status=403)
+        # POSTリクエストからtokenを取得
+        post_token = request.POST.get('token')
+        print(f"POST token: {post_token}")
+        signup_data = request.session.get('signup_data', None)
+        print(f"Session token: {signup_data.get('token') if signup_data else 'No signup_data in session'}")
+        
+        # セッションデータとPOSTされたトークンが一致するか確認 
+        if signup_data and signup_data.get('token') == post_token: 
+            try:
+                # Userモデルのcreate_userメソッドでユーザーを作成
+                user = User.objects.create_user(
+                    email=signup_data.get('email'),
+                    password=signup_data.POST('password') # フォームから直接パスワードを取得
+                )
+                user.save()
+                # 保存後のログを出力します（デバッグ用）
+                print(f"User {user.email} saved successfully")
+                
+                # サインアップ完了後の処理
+                return redirect('flick_seeker:signup_complete')  
+            except Exception as e:
+                # エラーハンドリングを追加
+                print(f"Error saving user: {e}")
+                return HttpResponse("ユーザーの保存中にエラーが発生しました。", status=500)
         else:
-            # フォームが無効な場合、エラーメッセージを含めて再表示します
-            return render(request, 'signup_confirm.html', {'form': form, 'token': token})
+            return HttpResponse("無効なアクセスです。", status=403)
     else:
         return HttpResponse("許可されていないメソッドです。", status=405)
 

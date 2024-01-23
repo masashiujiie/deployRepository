@@ -8,8 +8,8 @@ User = get_user_model()
 
 class CustomUserCreationForm(UserCreationForm):
     # カスタムユーザー作成フォーム
-
     email = forms.EmailField(max_length=254, help_text='Required. Enter a valid email address.')
+    username = forms.CharField(max_length=150, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.')
     password1 = forms.CharField(
         label=_("Password"),
         widget=forms.PasswordInput,
@@ -23,7 +23,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username','email', 'password1', 'password2')
 
     def clean_password1(self):
         # パスワード1の検証

@@ -33,6 +33,8 @@
     <!-- 登録ボタン -->
     <form method="post" action="{% url 'flick_seeker:signup_complete' token=token %}">
         {% csrf_token %}
+        <!-- 隠しフィールドとしてトークンを追加 -->
+        <input type="hidden" name="token" value="{{ token }}">
         <button type="submit" class="button signup-button">登録</button>
     </form>
 

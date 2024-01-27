@@ -1,16 +1,19 @@
 import uuid  # 一意のID生成のためのライブラリ
+from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView  # Djangoの標準ログインビュー
 from django.shortcuts import render  # HTMLテンプレートをレンダリングするための関数
 from django.shortcuts import render, redirect  # レンダリングとリダイレクトのための関数
 from django.contrib.auth.decorators import login_required  # ログイン要求のデコレータ
 from django.shortcuts import get_object_or_404  # オブジェクトを取得、なければ404エラーを返す
 from .models import Movie, Review, Favorite  # アプリケーションのモデルをインポート
-from .forms import CustomUserCreationForm  # カスタムユーザー作成フォーム
+from .forms import CustomUserCreationForm, PasswordForm  # カスタムユーザー作成フォーム
 from django.urls import reverse_lazy  # 遅延評価URLリバース関数
 from django.contrib import messages  # メッセージフレームワーク
 from django.contrib.auth import get_user_model  # ユーザーモデルを取得する関数
 from django.db import IntegrityError  # データベース整合性エラー
 from django.http import HttpResponse  # HTTPレスポンスを生成する関数
+import pdb
+import logging
 
 User = get_user_model()  # 現在アクティブなユーザーモデルを取得
 
@@ -20,11 +23,17 @@ def top(request):
     return render(request, 'top.html')
 
 def signup(request):
+    logging.debug("signupビューが呼び出されました。リクエストメソッド: %s", request.method)
+    
     # サインアップ（ユーザー登録）ページのビュー
     if request.method == 'POST':
         # フォームからのPOSTリクエストを処理
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST) 
+        logging.debug("POSTデータ: %s", request.POST)
+        print("Form Received:", form.is_valid(), form.errors)  # フォームの有効性とエラーを確認
         if form.is_valid():
+            logging.debug("フォームは有効です。")
+            
             # フォームのデータが有効な場合、一時的なトークンを生成しセッションに保存
             token = uuid.uuid4().hex
             # ユーザー情報（パスワード除外）とトークンをセッションに保存
@@ -33,8 +42,13 @@ def signup(request):
                 'email': form.cleaned_data.get('email'),
                 'token': token,
             }
+            logging.debug("リダイレクト前のセッションデータ: %s", request.session['signup_data'])
             # signup_confirm ページにリダイレクト
             return redirect('flick_seeker:signup_confirm', token=token)
+        else:
+            logging.debug("フォームは無効です。エラー: %s", form.errors)
+
+            print("Redirecting to signup_confirm")
     else:
         # GETリクエストの場合、空のフォームを表示
         form = CustomUserCreationForm()
@@ -55,11 +69,23 @@ def signup_confirm(request, token):
     signup_data = request.session.get('signup_data')
     # セッション内のトークンとURLのトークンが一致するか検証
     if signup_data and signup_data.get('token') == token:
+        if request.method == 'POST':
+            # パスワード入力フォームからのPOSTリクエストを処理
+            password_form = PasswordForm(request.POST)
+            if password_form.is_valid():
+                # パスワードが有効な場合、セッションに保存してsignup_completeにリダイレクト
+                signup_data['password'] = password_form.cleaned_data.get('password')
+                request.session['signup_data'] = signup_data
+                return redirect('flick_seeker:signup_complete', token=token)
+        else:
+            # GETリクエストの場合、パスワード入力フォームを表示
+            password_form = PasswordForm()
         # トークンが一致する場合、ユーザー情報を確認ページに表示
         context = {
             'username': signup_data.get('username'),
             'email': signup_data.get('email'),
             'token': token,  # トークンもフォームに渡す
+            'password_form': PasswordForm(),  # パスワード専用のフォームを追加
         }
         return render(request, 'signup_confirm.html', context)
     else:
@@ -70,29 +96,34 @@ def signup_complete(request, token):
     # サインアップ完了ページのビュー。セッションのトークンとPOSTされたトークンを照合
     if request.method == 'POST':
         # POSTリクエストからtokenを取得
+        signup_data = request.session.get('signup_data', {})
         post_token = request.POST.get('token')
-        print(f"POST token: {post_token}")
-        signup_data = request.session.get('signup_data', None)
-        print(f"Session token: {signup_data.get('token') if signup_data else 'No signup_data in session'}")
-        
+                
         # セッションのトークンとPOSTされたトークンが一致するか確認 
-        if signup_data and signup_data.get('token') == post_token: 
+        if signup_data and signup_data.get('token') == post_token:             
             try:
                  # トークンが一致する場合、ユーザーをデータベースに保存
                 user = User.objects.create_user(
+                    username=signup_data.get('username'),
                     email=signup_data.get('email'),
                     password=signup_data.get('password') # フォームから直接パスワードを取得
-                )
+                 )
+                  # セッションから取得したパスワードでユーザーのパスワードを設定
+                user.set_password(signup_data.get('password'))
                 user.save()
-                # 保存後のログを出力します（デバッグ用）
-                print(f"User {user.email} saved successfully")
+                
+                 # 登録成功後、セッションからサインアップデータを削除
+                del request.session['signup_data']
                 
                 # ユーザー保存後、サインアップ完了ページにリダイレクト
-                return redirect('flick_seeker:signup_complete')  
+                return redirect('flick_seeker:login')  
+            except IntegrityError:
+                # ユーザー名が重複しているなどの問題が発生した場合
+                return HttpResponse("ユーザー登録に失敗しました。既に存在するユーザー名です。", status=400)
             except Exception as e:
+                logging.error("ユーザーの保存中にエラーが発生しました: %s", e)
                 # ユーザー保存中のエラーを処理
-                print(f"Error saving user: {e}")
-                return HttpResponse("ユーザーの保存中にエラーが発生しました。", status=500)
+                return HttpResponse("ユーザーの保存中にエラーが発生しました。エラー内容: {}".format(e), status=500)
         else:
             # トークンが一致しない場合、エラーメッセージを表示
             return HttpResponse("無効なアクセスです。", status=403)

@@ -24,17 +24,17 @@
     <!-- Email表示 -->
     <p>Email: {{ email }}</p>
 
-    <!-- パスワードは表示されない -->
-    <p>パスワード: ********</p>
-
-    <!-- トークンの確認 -->
-    <p>Token: {{ token }}</p>
-
-    <!-- 登録ボタン -->
+    <!-- パスワード入力フォーム -->
     <form method="post" action="{% url 'flick_seeker:signup_complete' token=token %}">
         {% csrf_token %}
-        <!-- 隠しフィールドとしてトークンを追加 -->
+        <p>パスワード: 必須</p>
+        <input type="password" name="password" required> <!-- パスワード入力フィールド -->
+
+        <!-- トークンを隠しフィールドとしてフォームに追加 -->
         <input type="hidden" name="token" value="{{ token }}">
+
+
+        <!-- 登録ボタン -->
         <button type="submit" class="button signup-button">登録</button>
     </form>
 

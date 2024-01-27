@@ -5,6 +5,10 @@ from django.utils.translation import gettext as _  # Djangoの翻訳関数をイ
 # カスタムユーザーマネージャを定義するクラス
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
+        """
+        通常のユーザーアカウントを作成します。
+        emailとusernameが必須です。
+        """
         # ユーザー作成メソッド。email が無い場合はエラーを発生させる
         if not email:
             raise ValueError('The Email field must be set')
@@ -15,6 +19,10 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, username, password, **extra_fields):
+        """
+        スーパーユーザーアカウントを作成します。
+        is_staffとis_superuserフラグがTrueに設定されます。
+        """
         # スーパーユーザー作成メソッド。is_staff と is_superuser を強制的に True に設定
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)

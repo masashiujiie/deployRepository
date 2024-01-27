@@ -64,18 +64,6 @@
         {{ form.email }}
         {{ form.email.errors }}
 
-        <!-- パスワード入力 -->
-        <p>パスワード: パスワードは少なくとも8文字以上で、大文字、小文字、数字、記号をそれぞれ1つ以上含むようにしてください。</p>
-        {{ form.password1 }}
-        {{ form.password1.errors }}
-        <button type="button" onclick="togglePassword('id_password1', 'togglePassword1')">Show Password</button>
-
-        <!-- パスワード再入力 -->
-        <p>パスワード（確認用）: パスワードを再入力してください。</p>
-        {{ form.password2 }}
-        {{ form.password2.errors }}
-        <button type="button" onclick="togglePassword('id_password2', 'togglePassword2')">Show Password</button>
-
         <!-- 送信ボタン -->
         <button type="submit" class="button signup-button">Signup</button>
     </form>

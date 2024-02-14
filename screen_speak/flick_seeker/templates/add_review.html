@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>レビューを投稿する</h2>
+  <h3>{{ movie.title }}</h3>
+  <form method="post">
+    {% csrf_token %}
+    <p>
+      <label for="id_title">レビュータイトル:</label>
+      {{ form.title }}
+    </p>
+    <p>
+      <label for="id_rating">評価:</label>
+      {{ form.rating }}
+    </p>
+    <p>
+      {{ form.spoiler }} ネタバレあり
+    </p>
+    <p>
+      <label for="id_comment">本文:</label>
+      {{ form.comment }}
+    </p>
+    <label for="hashtag-selection" style="font-weight: bold; margin-bottom: 10px; display: block;">
+    映画のレビューに合わせて、関連するハッシュタグを選んでください。これにより、検索がしやすくなります。
+    </label>
+
+    <!-- タブ切り替えボタン -->
+    <div>
+      <button type="button" onclick="showCategory('genre')">ジャンル</button>
+      <button type="button" onclick="showCategory('situation')">シチュエーション</button>
+    </div>
+
+    <!-- ジャンルハッシュタグ -->
+    <div id="genre-tags" class="hashtag-category" style="display:none;">
+      {% for hashtag in genre_hashtags %}
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" name="hashtags" value="{{ hashtag.id }}">
+            {{ hashtag.label }}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- シチュエーションハッシュタグ -->
+    <div id="situation-tags" class="hashtag-category" style="display:none;">
+      {% for hashtag in situation_hashtags %}
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" name="hashtags" value="{{ hashtag.id }}">
+            {{ hashtag.label }}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit">投稿</button>
+  </form>
+
+  <!-- 戻るボタンを追加 -->
+  <a href="{% url 'flick_seeker:movie_detail' movie.id %}" class="btn btn-secondary">戻る</a>
+
+  <!-- ホーム画面へのリンクボタン -->
+  <a href="{% url 'flick_seeker:dashboard' %}" class="button">ホームへ</a>
+
+  <!-- マイページへのリンクボタン -->
+  <a href="{% url 'flick_seeker:mypage' %}" class="button">マイページへ</a>
+
+  <!-- ログアウトボタン -->
+  <a href="{% url 'flick_seeker:logout' %}" class="button">ログアウト</a>
+
+<!-- タブ切り替え用のJavaScript -->
+<script>
+  // タブ切り替え関数
+  function showCategory(category) {
+    console.log(category); // 確認のためのログ
+    var genreTagsDiv = document.getElementById('genre-tags');
+    var situationTagsDiv = document.getElementById('situation-tags');
+    console.log(genreTagsDiv, situationTagsDiv); // これらの要素が正しく取得できているかを確認
+
+    if (category === 'genre') {
+      genreTagsDiv.style.display = 'block';
+      situationTagsDiv.style.display = 'none';
+    } else if (category === 'situation') {
+      genreTagsDiv.style.display = 'none';
+      situationTagsDiv.style.display = 'block';
+    }
+  }
+</script>
+
+{% endblock %}

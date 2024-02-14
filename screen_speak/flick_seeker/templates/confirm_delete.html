@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>アカウント削除の確認</h1>
+
+<p>アカウントを削除する前に、以下のフォームにパスワードを入力してください。</p>
+
+<form method="post">
+    {% csrf_token %}
+    {% if form.password.errors %}
+        <div style="color: red;">{{ form.password.errors }}</div>
+    {% endif %}
+    <div>
+        {{ form.password.label_tag }} {{ form.password }}
+    </div>
+    <button type="submit">アカウントを削除する</button>
+</form>
+
+<a href="{% url 'flick_seeker:mypage' %}">キャンセル</a>
+
+{% endblock %}

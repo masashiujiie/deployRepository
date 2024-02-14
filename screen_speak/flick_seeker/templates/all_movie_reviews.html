@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+  {% if reviews %}
+    <!-- レビューが存在する場合は、最初のレビューから映画タイトルを取得します -->
+    <h1>{{ reviews.first.movie.title }}の全レビュー</h1>
+  {% else %}
+    <!-- レビューがない場合は、代わりのタイトルを表示します -->
+    <h1>映画レビュー一覧</h1>
+  {% endif %}
+  
+  <div class="reviews-list">
+    {% for review in reviews %}
+      <div class="review">
+        <!-- ユーザーのアイコン表示 -->
+        {% if review.user.profile_image %}
+        <!-- ユーザーのプロフィール画像があるか確認し、なければデフォルト画像を表示 -->
+        <img src="{% if review.user.profile_image %}{{ review.user.profile_image.url }}{% else %}{{ MEDIA_URL }}default-thumbnail.png{% endif %}" alt="{{ review.user.username }}'s Profile Icon" style="width: 70px; height: 70px; border-radius: 70%;"> 
+        {% endif %}
+        <p>{{ review.user.username }}さん</p>
+        <strong>{{ review.title }}</strong> <!-- レビュータイトルの表示 -->
+        <p>評価: {{ review.rating }}</p>
+        <p>投稿日: {{ review.created_at }}</p>
+        {% if review.spoiler %}
+          <!-- ネタバレがある場合は警告文と表示制御用のボタンを提供 -->
+          <p class="spoiler-warning">このレビューにはネタバレが含まれています。</p>
+          <!-- コメントを表示するためのボタン -->
+          <button onclick="toggleSpoilerVisibility(this)">ネタバレを表示</button>
+          <!-- 実際のレビューコメントは非表示にしておく -->
+          <div class="spoiler-content" style="display:none;">{{ review.comment }}</div>
+        {% else %}
+          <!-- ネタバレがない場合はそのままコメントを表示 -->
+          <p>{{ review.comment }}</p>
+        {% endif %}
+
+        <!-- ハッシュタグを表示するコードを追加 -->
+        <p>ハッシュタグ:</p>
+        <ul>
+          {% for hashtag in review.hashtags %}
+            <li>{{ hashtag.hashtag.label }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% empty %}
+      <p>この映画のレビューはありません。</p>
+    {% endfor %}
+  </div>
+  
+  <!-- 映画詳細ページに戻るリンク。movie_id はビューから渡されるべきです -->
+  {% if reviews %}
+    <a href="{% url 'flick_seeker:movie_detail' reviews.first.movie.id %}">映画詳細に戻る</a>
+  {% endif %}
+
+  <!-- マイページへのリンクボタン -->
+  <a href="{% url 'flick_seeker:mypage' %}" class="button">マイページへ</a>
+
+  <!-- ログアウトボタン -->
+  <a href="{% url 'flick_seeker:logout' %}" class="button">ログアウト</a>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // ネタバレ内容を表示/非表示する関数
+  function toggleSpoilerVisibility(button) {
+    // ボタンの直後の要素を取得するのではなく、
+    // ボタンの次の要素でクラス名が'spoiler-content'の要素を取得します。
+    var spoilerContent = button.parentNode.querySelector('.spoiler-content');
+    if (spoilerContent.style.display === 'none') {
+      spoilerContent.style.display = 'block'; // コンテンツを表示
+      button.textContent = 'ネタバレを隠す';
+    } else {
+      spoilerContent.style.display = 'none'; // コンテンツを非表示
+      button.textContent = 'ネタバレを表示';
+    }
+  }
+</script>
+{% endblock %}

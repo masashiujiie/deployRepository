@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'flick_seeker'
+    'flick_seeker',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -129,7 +130,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'screen_speak/static'),
+    os.path.join(BASE_DIR, 'flick_seeker/static'),
 ]
 
 # ログイン後のリダイレクト先を設定
@@ -166,3 +167,8 @@ LOGGING = {
         },
     },
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL = '/login/'

@@ -1,31 +1,75 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+  .movie-thumbnail img {
+    width: 200px; /* または固定のピクセル数、例えば 200px */
+    height: auto;
+  }
+</style>
+
   <h1>ダッシュボード</h1>
 
   <!-- 映画一覧 -->
   <h2>映画一覧</h2>
   <div class="movie-list">
-    <!-- サムネイルとタイトルを表示 -->
+    <!-- 最初の3件の映画のみを表示します。 -->
     {% for movie in movies %}
-      <div class="movie-thumbnail">
-        <a href="{% url 'screen_speak:movie_detail' movie.id %}">
-          <img src="{{ movie.thumbnail.url }}" alt="{{ movie.title }} Thumbnail">
-          <h3>{{ movie.title }}</h3>
-        </a>
-      </div>
+      {% if forloop.counter <= 3 %}
+        <div class="movie-thumbnail">
+          <a href="{% url 'flick_seeker:movie_detail' movie.id %}">
+            <!-- サムネイル画像が存在する場合のみ表示します。 -->
+            {% if movie.thumbnail %}
+              <img src="{{ movie.thumbnail.url }}" alt="{{ movie.title }} Thumbnail">
+            {% else %}
+              <!-- サムネイルがない場合は、代わりのテキストまたは画像を表示します。 -->
+              <img src="/media/movie_thumbnails/default-thumbnail.png" alt="デフォルトのサムネイル">
+             {% endif %}
+            <h3>{{ movie.title }}</h3>
+          </a>
+        </div>
+      {% endif %}
     {% endfor %}
   </div>
 
   <!-- 「続きはこちら」へのリンク -->
-  <a href="{% url 'flick_seeker:movie_list' %}" class="button">続きはこちら</a>
+  <a href="{% url 'flick_seeker:movie_list' %}" class="button">全ての映画一覧はこちら</a>
 
   <!-- 検索バーと検索機能 -->
   <h2>検索</h2>
-  <form method="GET" action="">
-    <input type="text" name="query" placeholder="キーワードを入力">
-    <button type="submit">検索</button>
+  <form method="GET" action="{% url 'flick_seeker:search_results' %}">
+    <!-- キーワード検索バー -->
+    <input type="text" name="query" placeholder="映画、監督、俳優等で検索" class="search-bar">
+    
+    <!-- ジャンルフィルター -->
+    <p>ジャンル (ctrlまたはcmdを押しながら複数選択できます)</p>
+    <select name="genre" multiple>
+      {% for genre in genres %}
+        <option value="{{ genre.label }}">{{ genre.label }}</option>
+      {% endfor %}
+    </select>
+    
+    <!-- シチュエーションフィルター -->
+    <p>シチュエーション (ctrlまたはcmdを押しながら複数選択できます)</p>
+    <select name="situation" multiple>
+      {% for situation in situations %}
+        <option value="{{ situation.label }}">{{ situation.label }}</option>
+      {% endfor %}
+    </select>
+    
+    <!-- 評価フィルター -->
+    <p>評価点数で検索できます（0.5単位で選択可能）</p>
+    <input type="number" name="rating_from" placeholder="評価" min="0.5" max="5" step="0.5">
+    
+    <!-- 検索ボタン -->
+    <br><button type="submit">検索</button></br> 
+    
+    <!-- クリアボタン -->
+    <button type="reset">クリア</button>
   </form>
+
+  <!-- 映画を登録するボタン -->
+  <a href="{% url 'flick_seeker:movie_register' %}" class="button">映画を登録する</a>  
 
   <!-- マイページボタン -->
   <a href="{% url 'flick_seeker:mypage' %}" class="button">マイページへ</a>

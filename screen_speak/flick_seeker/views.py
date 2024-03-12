@@ -46,12 +46,12 @@ def signup_complete(request):
         # 登録完了フラグ をセッションから削除
         del request.session['registration_complete']
         #　アカウントが作成されたメッセージを表示
-        messages.success(request, 'アカウントが正常に作成されました。下記リンクよりログインしてください。')
+        # messages.success(request, 'アカウントが正常に作成されました。下記リンクよりログインしてください。')
         # 登録完了ページを表示
         return render(request, 'signup_complete.html')
     else:
         # フラグがセットされていない場合、ユーザーをログインページにリダイレクト
-        return redirect('flick_seeker:login')  # loginはログインページのURL名に合わせてください
+        return redirect('flick_seeker:login')  
 
 class CustomLoginView(LoginView):
     # カスタムログインビュー。ログインページ用のクラスベースビュー
@@ -188,13 +188,19 @@ def movie_detail(request, movie_id):
     else:
         # レビューがない場合は "評価なし" を表示するため、テンプレートに渡す前に適切な値に設定します。
         average_rating = "評価なし"
+        
+    # お気に入り状態を確認
+    is_favorited = FavoriteMovie.objects.filter(user=request.user, movie=movie).exists()
 
-    return render(request, 'movie_detail.html', {
+    context = {
         'movie': movie,
         'reviews': reviews,
         'average_rating': average_rating,
-        'all_reviews_count': all_reviews_count  # 全てのレビュー数をコンテキストに追加
-    })
+        'all_reviews_count': all_reviews_count,
+        'is_favorited': is_favorited,  # お気に入り状態をコンテキストに追加
+    }
+
+    return render(request, 'movie_detail.html', context)
 
 @login_required
 def movie_detail_edit(request, movie_id):
@@ -423,13 +429,13 @@ def toggle_favorite(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
     favorite, created = FavoriteMovie.objects.get_or_create(user=request.user, movie=movie)
 
-    if created:
-        # お気に入りに追加された
-        is_favorite = True
-    else:
-        # お気に入りから削除された
+    if not created:
+        # 既にお気に入りが存在する場合、お気に入りから削除
         favorite.delete()
         is_favorite = False
+    else:
+        # 新規にお気に入りに追加された場合は、そのまま
+        is_favorite = True
 
     return JsonResponse({
         'status': 'success',

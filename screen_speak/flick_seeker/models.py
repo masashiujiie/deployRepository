@@ -130,16 +130,3 @@ class ReviewReaction(models.Model):
     rating_type = models.CharField(max_length=255)  # リアクションの種類フィールド
     created_at = models.DateTimeField(auto_now_add=True)  # 作成日時（自動で現在の日時が設定される）
 
-# Good/Bad投票モデル
-class Vote(models.Model):
-    VOTE_TYPE_CHOICES = (
-        ('good', 'Good'),
-        ('bad', 'Bad'),
-    )
-
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='votes')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    vote_type = models.CharField(max_length=4, choices=VOTE_TYPE_CHOICES)
-
-    class Meta:
-        unique_together = ('review', 'user')

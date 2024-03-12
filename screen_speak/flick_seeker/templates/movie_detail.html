@@ -1,79 +1,85 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>{{ movie.title }}</h1>
-  {% if movie.thumbnail %}
-    <img src="{{ movie.thumbnail.url }}" alt="{{ movie.title }} Thumbnail" style="width: 400px; height: auto;">
-  {% endif %}
-  <p>平均評価: {{ average_rating }}</p> 
-  <p><strong>あらすじ:</strong> {{ movie.plot }}</p>
-  <p><strong>監督:</strong> {{ movie.director }}</p>
-  <p><strong>出演者:</strong> {{ movie.cast }}</p>
-  <p><strong>公開年:</strong> {{ movie.release_year }}</p>
+  <div class="movie-detail-container">
+    <h1>{{ movie.title }}</h1>
+    {% if movie.thumbnail %}
+      <img class="movie-detail-movie-image" src="{{ movie.thumbnail.url }}" alt="{{ movie.title }} Thumbnail">
+    {% endif %}
+
+    <div class="movie-detail-movie-info">  
+      <p>平均評価: {{ average_rating }}</p> 
+      <p class="movie-plot"><strong>あらすじ:</strong> {{ movie.plot }}</p>
+      <p><strong>監督:</strong> {{ movie.director }}</p>
+      <p><strong>出演者:</strong> {{ movie.cast }}</p>
+      <p class="release-year"><strong>公開年:</strong> {{ movie.release_year }}</p>
+    </div>
+  </div>
 
   <!-- ユーザーが認証されている場合、編集ページへのリンクを表示 -->
   {% if request.user.is_authenticated %}
-    <a href="{% url 'flick_seeker:movie_detail_edit' movie.id %}" class="button">映画情報を編集</a>
+    <a href="{% url 'flick_seeker:movie_detail_edit' movie.id %}" class="button edit-movie-button">映画情報を編集</a>
   {% endif %}
-
-  <!-- レビュー投稿リンク -->
-  <a href="{% url 'flick_seeker:add_review' movie.id %}">レビューを書く</a>
 
   <!-- レビュー表示 -->
-  <h2>映画レビュー</h2>
-  <!-- 最初の3件のレビューのみを表示 -->
-  {% for review in reviews|slice:":3" %} 
-    <div class="review">
-     <!-- ユーザーのアイコン表示 -->
-      {% if review.user.profile_image %}
-        <img src="{% if review.user.profile_image %}{{ review.user.profile_image.url }}{% else %}{{ MEDIA_URL }}default-thumbnail.png{% endif %}" alt="{{ review.user.username }}'s Profile Icon" style="width: 50px; height: 50px; border-radius: 50%;">
-        <span>{{ review.user.username }}さん</span>
-      {% endif %}
-      <!-- レビュータイトルとユーザー名の表示 -->
-      <p><strong>{{ review.title }}</strong></p> 
-      <p>評価: {{ review.rating }}</p>
-      {% if review.spoiler %}
-        <!-- ネタバレがある場合、クリックして表示する -->
-        <p class="spoiler">ネタバレ: <a href="#" onclick="toggleSpoilerVisibility(this);return false;">内容を表示</a></p>
-        <div class="spoiler-content" style="display:none;">{{ review.comment }}</div>
-      {% else %}
-        <!-- ネタバレがない場合、そのままコメントを表示 -->
-        <p>{{ review.comment }}</p>
-      {% endif %}
+  <div class="movie-reviews-container">
+    <h2>映画レビュー</h2>
+    <!-- レビュー投稿リンク -->
+    <a href="{% url 'flick_seeker:add_review' movie.id %}" class="button review-link">レビューを書く</a>
 
-      <!-- ハッシュタグを表示するコードを追加 -->
-      <p>ハッシュタグ:</p>
-      <ul>
-        {% for hashtag in review.hashtags %}
-          <li>{{ hashtag.hashtag.label }}</li>
-        {% endfor %}
-      </ul>
+    <!-- 最初の3件のレビューのみを表示 -->
+    {% for review in reviews|slice:":3" %} 
+      <div class="review">
+      <!-- ユーザーのアイコン表示 -->
+        {% if review.user.profile_image %}
+          <img src="{% if review.user.profile_image %}{{ review.user.profile_image.url }}{% else %}{{ MEDIA_URL }}default-thumbnail.png{% endif %}" alt="{{ review.user.username }}'s Profile Icon" style="width: 50px; height: 50px; border-radius: 50%;">
+          <span>{{ review.user.username }}さん</span>
+        {% endif %}
+        <!-- レビュータイトルとユーザー名の表示 -->
+        <p><strong>{{ review.title }}</strong></p> 
+        <p>評価: {{ review.rating }}</p>
+        {% if review.spoiler %}
+          <!-- ネタバレがある場合、クリックして表示する -->
+          <p class="spoiler">ネタバレあり: <a href="#" onclick="toggleSpoilerVisibility(this);return false;">内容を表示</a></p>
+          <div class="spoiler-content" style="display:none;">{{ review.comment }}</div>
+        {% else %}
+          <!-- ネタバレがない場合、そのままコメントを表示 -->
+          <p>{{ review.comment }}</p>
+        {% endif %}
 
-      <button class="vote-button" data-review="{{ review.id }}" data-vote-type="good">Good: {{ review.good_count }}</button>
-      <button class="vote-button" data-review="{{ review.id }}" data-vote-type="bad">Bad: {{ review.bad_count }}</button>
+        <!-- ハッシュタグを表示するコードを追加 -->
+        <p>ハッシュタグ:</p>
+        <ul>
+          {% for hashtag in review.hashtags %}
+            <li>{{ hashtag.hashtag.label }}</li>
+          {% endfor %}
+        </ul>
+
+        <button class="vote-button" data-review="{{ review.id }}" data-vote-type="good">Good: {{ review.good_count }}</button>
+        <button class="vote-button" data-review="{{ review.id }}" data-vote-type="bad">Bad: {{ review.bad_count }}</button>
+      </div>
+    {% empty %}
+      <p>レビューはありません。</p>
+    {% endfor %}
+
+    {% if reviews.count > 0 %}
+      <a href="{% url 'flick_seeker:all_movie_reviews' movie.id %}" class="button all-movie-reviews">全ての映画レビューを表示する</a>
+    {% endif %}
+
+    <!-- お気に入りボタン -->
+    <button type="button" id="favorite-button" data-url="{% url 'flick_seeker:toggle_favorite' movie_id=movie.id %}" data-favorited="{{ is_favorited|yesno:'true,false' }}">
+      {{ is_favorited|yesno:'お気に入り済み,お気に入りに追加' }}
+    </button>      
+    
+    <div class="auth-buttons">
+
+      <!-- 前の画面に戻るボタン -->
+      <a href="{% url 'flick_seeker:movie_list' %}" class="button back-button">映画一覧へ</a>
+
+      <!-- ホーム画面へのリンクボタン -->
+      <a href="{% url 'flick_seeker:dashboard' %}" class="button back-button">ホームへ</a>
     </div>
-  {% empty %}
-    <p>レビューはありません。</p>
-  {% endfor %}
-
-  {% if reviews.count > 0 %}
-    <a href="{% url 'flick_seeker:all_movie_reviews' movie.id %}">全ての映画レビューを表示する</a>
-  {% endif %}
-
-  <!-- お気に入りボタン -->
-  <br><button type="button" id="favorite-button">お気に入りに追加</button></br>
-
-  <!-- 前の画面に戻るボタン -->
-  <a href="{% url 'flick_seeker:movie_list' %}" class="button">映画一覧へ</a>
-
-  <!-- ホーム画面へのリンクボタン -->
-  <a href="{% url 'flick_seeker:dashboard' %}" class="button">ホームへ</a>
-
-  <!-- マイページへのリンクボタン -->
-  <a href="{% url 'flick_seeker:mypage' %}" class="button">マイページへ</a>
-
-  <!-- ログアウトボタン -->
-  <a href="{% url 'flick_seeker:logout' %}" class="button">ログアウト</a>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
@@ -83,32 +89,53 @@
   </script>
 
   <script>
-    console.log("movieId:", movieId);
-    // お気に入りボタンのAjaxリクエスト
+    // お気に入りボタンのクリックイベント
     document.getElementById('favorite-button').addEventListener('click', function() {
-        console.log("お気に入りボタンがクリックされました"); // ボタンクリックのログ
-        fetch(`/movie/${movieId}/toggle_favorite/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'), // CSRFトークンをヘッダーに追加
-                'Content-Type': 'application/json' // コンテンツタイプをJSONに設定
-            },
-            // body: JSON.stringify({ 'movieId': movieId }) // POSTデータを送る必要があれば
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // お気に入り状態の更新ロジック
-            console.log("お気に入りのレスポンス:", data); // レスポンスのログ
-            // ここでお気に入りボタンの状態を更新するなどの処理を行います
-        })
-        .catch(error => console.error('Fetch error:', error)); // エラーハンドリング
+      var button = this; // ボタンのDOM要素を取得
+      var favorited = button.getAttribute('data-favorited') === 'true'; // お気に入り状態を取得
+      var url = button.dataset.url; // URLを `data-url` 属性から取得
+      
+      // CSRFトークンを取得
+      var csrfToken = getCookie('csrftoken');
+
+      // AJAXリクエストを送信
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'movie_id': movieId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // お気に入りの状態をトグル
+        if (data.is_favorite) {
+          button.classList.add('favorite-added');
+          button.textContent = 'お気に入り済み';
+        } else {
+          button.classList.remove('favorite-added');
+          button.textContent = 'お気に入りに追加';
+        }
+        button.setAttribute('data-favorited', data.is_favorite.toString());
+      })
+      .catch(error => console.error('Error:', error));
     });
 
+    // ページの読み込みが完了した後に実行されるイベントリスナー
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const favoriteButton = document.getElementById('favorite-button');
+      const isFavorited = favoriteButton.getAttribute('data-favorited') === 'true';
+  
+      // お気に入り状態に応じてクラスを設定する
+      if (isFavorited) {
+        favoriteButton.classList.add('favorite-added');
+        favoriteButton.textContent = 'お気に入り済み';
+      } else {
+        favoriteButton.classList.remove('favorite-added');
+        favoriteButton.textContent = 'お気に入りに追加';
+      }
+    });
 
     // Good/BadボタンのAjaxリクエスト
     document.querySelectorAll('.vote-button').forEach(button => {
@@ -199,4 +226,7 @@
     }
 
   </script>
+
+
+  
 {% endblock %}

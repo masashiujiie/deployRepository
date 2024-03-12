@@ -5,12 +5,13 @@
 
 <!-- レビューの一覧を表示 -->
 {% for review in reviews %}
-    <div class="review">
+    <div class="my-reviews">
         <!-- 映画のサムネイルを表示 -->
         {% if review.movie.thumbnail %}
             <img src="{{ review.movie.thumbnail.url }}" alt="{{ review.movie.title }} Thumbnail" style="width: 400px; height: auto;">
         {% endif %}
         <h3>{{ review.movie.title }}</h3> <!-- 映画のタイトル -->
+        <p><strong>{{ review.title }}</strong></p>
         <p>評価: {{ review.rating }}</p> <!-- 評価スコア -->
         <p>{{ review.comment }}</p> <!-- レビューコメント -->
         <p>投稿日: {{ review.created_at }}</p> <!-- 投稿日時 -->
@@ -27,13 +28,7 @@
   <a href="{% url 'flick_seeker:mypage' %}" class="button">戻る</a>
 
   <!-- ホーム画面へのリンクボタン -->
-  <a href="{% url 'flick_seeker:dashboard' %}" class="button">ホームへ</a>
-
-  <!-- マイページへのリンクボタン -->
-  <a href="{% url 'flick_seeker:mypage' %}" class="button">マイページへ</a>
-
-  <!-- ログアウトボタン -->
-  <a href="{% url 'flick_seeker:logout' %}" class="button">ログアウト</a>
+  <br><a href="{% url 'flick_seeker:dashboard' %}" class="button">ホームへ</a></br>
 </div>
 
 {% endblock %}

@@ -1,71 +1,8 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    <style>
-        /* スタイルの定義 */
-        form {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
+{% extends 'base.html' %}
 
-        p {
-            margin-bottom: 5px;
-        }
-
-        input, button {
-            margin-top: 5px;
-        }
-
-        button {
-            width: auto;
-            margin-left: 5px; /* Show Password ボタンの右側に隙間を作る */
-        }
-
-         /* メッセージのスタイル定義 */
-        .messages {
-            list-style-type: none; /* リストのスタイルを無しに設定 */
-            padding: 0; /* リストのパディングをリセット */
-        }
-
-        .message.error {
-            color: red; /* エラーメッセージのテキスト色を赤に設定 */
-            font-weight: bold; /* エラーメッセージのテキストを太字に設定 */
-            margin-bottom: 10px; /* メッセージ間の余白を設定 */
-        }
-
-        /* フォームフィールドエラーのスタイル */
-        .errorlist {
-            color: red;
-        }
-
-    </style>
-    <script>
-        // パスワード表示切り替えのJavaScript関数
-        function togglePassword(inputId, buttonId) {
-            var passwordInput = document.getElementById(inputId);
-            var toggleBtn = document.getElementById(buttonId);
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleBtn.textContent = 'Hide Password';
-            } else {
-                passwordInput.type = 'password';
-                toggleBtn.textContent = 'Show Password';
-            }
-        }
-    </script>
-</head>
-<body>
+{% block content %}
     <h1>新規登録</h1>
     
-
     <!-- エラーメッセージの表示部分 -->
     {% if messages %}
     <ul class="messages">
@@ -76,46 +13,67 @@
     {% endif %}
 
     <!-- フォームの定義 -->
-    <form method="post" action="{% url 'flick_seeker:signup'  %}">
+    <form method="post" action="{% url 'flick_seeker:signup' %}" class="form-container">
         {% csrf_token %}
 
         <!-- フォーム全体のエラーメッセージ -->
         {{ form.non_field_errors }}
 
         <!-- ユーザー名入力 -->
-        <p>ユーザー名</p>
+        <label for="id_username">ユーザー名</label>
         {{ form.username }}
         {{ form.username.errors }}
 
         <!-- メールアドレス入力 -->
-        <p>Email: 有効なメールアドレスを入力してください。</p>
+        <label for="id_email">Email: 有効なメールアドレスを入力してください。</label>
         {{ form.email }}
         {{ form.email.errors }}
 
         <!-- パスワード入力 -->
-        <p>パスワード:</p>
+        <label for="id_password1">パスワード:</label>
         {{ form.password1 }}
-        <button type="button" onclick="togglePassword('id_password1', 'toggleButton1');">パスワードを表示</button>
+        <button type="button" id="toggleButton1" onclick="togglePassword('id_password1', 'toggleButton1');">パスワードを表示</button>
         {{ form.password1.errors }}
 
-        <!-- 注意書きを追加 -->
-        <ul>
-            <li>あなたの他の個人情報と関連しているパスワードにはできません。</li>
-            <li>パスワードは最低8文字以上必要です。</li>
-            <li>よく使われるパスワードにはできません。</li>
-            <li>数字だけのパスワードにはできません。</li>
-        </ul>
-
-        <p>パスワード（確認用）:</p>
+        <!-- パスワード（確認）入力 -->
+        <label for="id_password2">パスワード（確認）:</label>
         {{ form.password2 }}
-        <button type="button" onclick="togglePassword('id_password2', 'toggleButton2');">パスワードを表示</button>
+        <button type="button" id="toggleButton2" onclick="togglePassword('id_password2', 'toggleButton2');">パスワードを表示</button>
         {{ form.password2.errors }}
 
+        <!-- 注意書きを追加 -->
+        <div class="password-instructions">
+            <p>【パスワードは次の要件を満たす必要があります】</p>
+            <ul class="password-requirements">
+                <li>あなたの他の個人情報と関連しているパスワードにはできません。</li>
+                <li>パスワードは最低8文字以上必要です。</li>
+                <li>よく使われるパスワードにはできません。</li>
+                <li>数字だけのパスワードにはできません。</li>
+            </ul>
+        </div>
+
         <!-- 送信ボタン -->
-        <button type="submit" class="button signup-button">Signup</button>
+        <button type="submit" class="button signup-button">登録</button>
     </form>
 
     <!-- 戻るボタン -->
     <a href="{% url 'flick_seeker:top' %}" class="button back-button">戻る</a>
-</body>
-</html>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function togglePassword(inputId, buttonId) {
+            var passwordInput = document.getElementById(inputId);
+            var toggleBtn = document.getElementById(buttonId);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = 'パスワードを隠す';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = 'パスワードを表示';
+            }
+        }
+    </script>
+{% endblock %}

@@ -19,6 +19,10 @@ class CustomUserCreationForm(UserCreationForm):
         
     def __init__(self, *args, **kwargs):
         super(CustomUserCreationForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['placeholder'] = 'ユーザー名'
+        self.fields['email'].widget.attrs['placeholder'] = 'メールアドレス'
+        self.fields['password1'].widget.attrs['placeholder'] = 'パスワード'
+        self.fields['password2'].widget.attrs['placeholder'] = 'パスワード（確認）'
         
 class PasswordForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)

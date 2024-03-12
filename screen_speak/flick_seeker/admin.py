@@ -1,5 +1,5 @@
 from django.contrib import admin  # Djangoの管理サイト機能をインポート
-from .models import User, Movie, Review, Hashtag, ReviewHashtag, FavoriteMovie, ReviewReaction, Vote  # 同じアプリケーション内のUserモデルをインポート
+from .models import User, Movie, Review, Hashtag, ReviewHashtag, FavoriteMovie, ReviewReaction  # 同じアプリケーション内のUserモデルをインポート
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin  # DjangoのデフォルトUserAdminをインポート
 
 class UserAdmin(DefaultUserAdmin):
@@ -50,8 +50,3 @@ class ReviewReactionAdmin(admin.ModelAdmin):
     list_display = ('user', 'review', 'rating_type', 'created_at')
     list_filter = ('rating_type',)
 
-# Good/Bad投票モデルを管理画面に登録
-@admin.register(Vote)
-class VoteAdmin(admin.ModelAdmin):
-    list_display = ('review', 'user', 'vote_type')
-    list_filter = ('vote_type',)

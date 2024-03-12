@@ -1,25 +1,21 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup Complete</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-</head>
-<body>
+{% extends 'base.html' %} <!-- base.htmlを継承する -->
+
+{% block title %}Signup Complete{% endblock %} <!-- ページタイトルを上書き -->
+
+{% block content %}
     <h1>新規登録が完了しました</h1>
 
     <!-- Djangoメッセージフレームワークを通じて表示されるメッセージ -->
-    {% if messages %}
-    <ul class="messages">
+    <!-- {% if messages %}
+      <ul class="messages">
         {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% if forloop.first %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endif %}
         {% endfor %}
-    </ul>
-    {% endif %}
+      </ul>
+    {% endif %} -->
 
     <!-- ログイン画面への遷移ボタン -->
-    <a href="{% url 'flick_seeker:login' %}" class="button">ログイン画面へ</a>
-</body>
-</html>
+    <a href="{% url 'flick_seeker:login' %}" class="button back-button">ログイン画面へ</a>
+{% endblock %}

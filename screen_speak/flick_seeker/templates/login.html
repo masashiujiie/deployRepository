@@ -1,22 +1,22 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %} 
 
-  <h2>Login</h2>
+{% block title %}
+Login
+{% endblock %}
 
-  <form method="post" action="{% url 'flick_seeker:login' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
+{% block content %}
+  <div class="login-form-container">
+    <h1>Screen Speakにログイン</h1>
+    <form method="post" action="{% url 'flick_seeker:login' %}" class="login-form"> <!-- login-formクラスを追加 -->
+      {% csrf_token %}
+      {{ form.as_p }}
 
-    <button type="submit">Login</button>
-  </form>
+      <button type="submit" class="button login-button">Login</button> <!-- login-buttonクラスを追加 -->
+    </form>
+  </div>
 
-  <!-- 戻るボタンを追加 -->
-  <a href="{% url 'flick_seeker:top' %}" class="button">戻る</a>
-</body>
-</html>
+    <!-- 戻るボタンを追加 -->
+    <a href="{% url 'flick_seeker:top' %}" class="button back-button">戻る</a>
+  
+{% endblock %}
